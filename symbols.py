@@ -32,7 +32,8 @@ COMMODITIES = [
     "NATURALGAS",
     "CRUDEOIL",
     "COPPER",
-    "SILVER"
+    "SILVER",
+    "ALUMINIUM"
 ]
 
 NSE_INDICES = [
