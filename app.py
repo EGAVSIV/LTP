@@ -3,13 +3,10 @@ import time
 from tvDatafeed import TvDatafeed, Interval
 
 # ==============================
-# STREAMLIT CONFIG
+# CONFIG
 # ==============================
 st.set_page_config(layout="wide", page_title="Live NSE & Commodity LTP")
 
-# ==============================
-# TV DATAFEED
-# ==============================
 tv = TvDatafeed()
 
 # ==============================
@@ -29,7 +26,7 @@ COMMODITIES = [
 ]
 
 # ==============================
-# PRICE FETCH FUNCTION
+# FETCH PRICE
 # ==============================
 def fetch_ltp(symbol, exchange):
     try:
@@ -41,25 +38,24 @@ def fetch_ltp(symbol, exchange):
         )
         if df is None or df.empty:
             return None, None
-
         return float(df["close"].iloc[-1]), float(df["close"].iloc[-2])
     except Exception:
         return None, None
 
 # ==============================
-# BREAKOUT / DIRECTION LOGIC
+# DIRECTION
 # ==============================
-def check_direction(curr, prev):
+def direction(curr, prev):
     if curr is None or prev is None:
         return None
     if curr > prev:
         return "UP"
-    elif curr < prev:
+    if curr < prev:
         return "DOWN"
     return None
 
 # ==============================
-# SOUND STATE
+# SESSION STATE
 # ==============================
 if "last_move" not in st.session_state:
     st.session_state.last_move = {}
@@ -68,54 +64,37 @@ def play_sound():
     st.audio("assets/alert.mp3", format="audio/mp3")
 
 # ==============================
-# UI HEADER
+# UI
 # ==============================
 st.title("📊 Live NSE & Commodity Dashboard")
 
 left, right = st.columns(2)
 
-# ==============================
-# NSE SELECTION
-# ==============================
 with left:
-    st.subheader("🇮🇳 NSE (Index + Stocks)")
+    st.subheader("🇮🇳 NSE")
     nse_selected = st.multiselect(
         "Select NSE symbols (1–5)",
         NSE_SYMBOLS,
         max_selections=5
     )
 
-# ==============================
-# COMMODITY SELECTION
-# ==============================
 with right:
-    st.subheader("🛢 Commodities (Capital.com)")
+    st.subheader("🛢 Commodities")
     com_selected = st.multiselect(
         "Select Commodities (1–5)",
         COMMODITIES,
         max_selections=5
     )
 
-# ==============================
-# VALIDATION
-# ==============================
-if len(nse_selected) == 0 and len(com_selected) == 0:
-    st.warning("Select at least 1 symbol in NSE or Commodities")
+if not nse_selected and not com_selected:
+    st.warning("Select at least one symbol")
     st.stop()
 
 # ==============================
-# AUTO REFRESH (SAFE)
-# ==============================
-
-
-# ==============================
-# DISPLAY AREA
+# DISPLAY
 # ==============================
 nse_col, com_col = st.columns(2)
 
-# ==============================
-# NSE PANEL
-# ==============================
 with nse_col:
     if nse_selected:
         st.markdown("### 🇮🇳 NSE")
@@ -123,11 +102,10 @@ with nse_col:
 
         for i, sym in enumerate(nse_selected):
             price, prev = fetch_ltp(sym, "NSE")
-            move = check_direction(price, prev)
+            move = direction(price, prev)
 
             color = "#00ff00" if move == "UP" else "#ff3333" if move == "DOWN" else "#cccccc"
 
-            # sound only on change
             if move and st.session_state.last_move.get(sym) != move:
                 play_sound()
                 st.session_state.last_move[sym] = move
@@ -151,9 +129,6 @@ with nse_col:
                     unsafe_allow_html=True
                 )
 
-# ==============================
-# COMMODITY PANEL
-# ==============================
 with com_col:
     if com_selected:
         st.markdown("### 🛢 Commodities")
@@ -161,7 +136,7 @@ with com_col:
 
         for i, sym in enumerate(com_selected):
             price, prev = fetch_ltp(sym, "CAPITALCOM")
-            move = check_direction(price, prev)
+            move = direction(price, prev)
 
             color = "#00ff00" if move == "UP" else "#ff3333" if move == "DOWN" else "#cccccc"
 
@@ -188,8 +163,8 @@ with com_col:
                     unsafe_allow_html=True
                 )
 
-
-
+# ==============================
+# REFRESH
+# ==============================
 time.sleep(1)
 st.experimental_rerun()
-
