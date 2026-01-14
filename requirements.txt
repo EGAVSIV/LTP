@@ -1,6 +1,4 @@
-swisseph
-pyswisseph
-streamlit
+
 tradingview-datafeed
 pandas
 numpy
@@ -8,3 +6,4 @@ matplotlib
 ta-lib
 fpdf
 swisseph
+streamlit
