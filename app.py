@@ -181,4 +181,5 @@ with com_col:
 # SAFE AUTO REFRESH
 # =================================================
 time.sleep(1)
-st.experimental_rerun()
+st.rerun()
+
