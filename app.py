@@ -106,7 +106,7 @@ if len(nse_selected) == 0 and len(com_selected) == 0:
 # ==============================
 # AUTO REFRESH (SAFE)
 # ==============================
-st.autorefresh(interval=1000, key="refresh")
+
 
 # ==============================
 # DISPLAY AREA
@@ -187,3 +187,9 @@ with com_col:
                     """,
                     unsafe_allow_html=True
                 )
+
+
+
+time.sleep(1)
+st.experimental_rerun()
+
